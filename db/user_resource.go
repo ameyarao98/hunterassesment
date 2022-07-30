@@ -26,3 +26,12 @@ func CreateUserResource(db *pgx.Conn, input UserResource) (*UserResource, error)
 	}
 	return &userResource, nil
 }
+
+func UpdateResources(db *pgx.Conn) error {
+	_, err := db.Exec(context.Background(),
+		`UPDATE "user_resource"
+		SET amount = amount + production_per_second
+		FROM "factory" WHERE "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level
+		`)
+	return err
+}

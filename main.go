@@ -6,15 +6,19 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/ameyarao98/hunterassesment/db"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4"
 )
 
-func main() {
+var resources = [3]string{"iron", "copper", "gold"}
+var conn *pgx.Conn
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv("POSTGRES_DSN"))
+func main() {
+	var err error
+	conn, err = pgx.Connect(context.Background(), os.Getenv("POSTGRES_DSN"))
 	if err != nil {
 		panic(err)
 	}
@@ -24,6 +28,8 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("Initilised db schema")
+
+	go update()
 
 	r := chi.NewRouter()
 
@@ -43,7 +49,7 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		for _, resource := range [3]string{"iron", "copper", "gold"} {
+		for _, resource := range resources {
 			_, err := db.CreateUserResource(conn, db.UserResource{ResourceName: resource, Username: userInput.Username})
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -75,4 +81,18 @@ func main() {
 
 	fmt.Println("Server running on localhost:8080")
 	http.ListenAndServe(":8080", r)
+}
+
+func update() {
+	for range time.Tick(time.Second * 1) {
+		go func() {
+			err := db.UpdateResources(conn)
+			if err != nil {
+				fmt.Println(fmt.Errorf("update failed : %w", err))
+				return
+			}
+			fmt.Println("update succeeded :)")
+
+		}()
+	}
 }
