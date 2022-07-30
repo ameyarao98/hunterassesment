@@ -43,9 +43,34 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		for _, resource := range [3]string{"iron", "copper", "gold"} {
+			_, err := db.CreateUserResource(conn, db.UserResource{ResourceName: resource, Username: userInput.Username})
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(user)
+	})
+
+	r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
+		var userInput db.User
+		err := json.NewDecoder(r.Body).Decode(&userInput)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		data, err := db.GetDashboardData(conn, userInput)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(data)
+
 	})
 
 	fmt.Println("Server running on localhost:8080")
