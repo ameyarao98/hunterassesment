@@ -35,7 +35,7 @@ func CreateUserResource(db *pgx.Conn, input UserResource) (*UserResource, error)
 func UpdateResources(db *pgx.Conn) error {
 	_, err := db.Exec(context.Background(),
 		`UPDATE "user_resource"
-		SET amount = amount + production_per_second
+		SET amount = amount + production_per_second, time_until_upgrade_complete=time_until_upgrade_complete-1
 		FROM "factory" WHERE "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level
 		`)
 	return err
@@ -44,7 +44,7 @@ func UpdateResources(db *pgx.Conn) error {
 func Upgrade(db *pgx.Conn, input UpgradeInput) error {
 	_, err := db.Exec(context.Background(),
 		`UPDATE "user_resource"
-		SET factory_level = "user_resource".factory_level + 1
+		SET time_until_upgrade_complete = "factory".next_upgrade_duration
 		FROM "factory" WHERE "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level
 		AND "user_resource".username=$1 AND "user_resource".resource_name=$2`,
 		input.Username,
