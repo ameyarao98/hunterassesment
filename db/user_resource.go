@@ -14,6 +14,11 @@ type UserResource struct {
 	TimeUntilUpgradeComplete int    `json:"time_until_upgrade_complete"`
 }
 
+type UpgradeInput struct {
+	ResourceName string `json:"resource_name"`
+	Username     string `json:"username"`
+}
+
 func CreateUserResource(db *pgx.Conn, input UserResource) (*UserResource, error) {
 	var userResource UserResource
 	if err := db.
@@ -33,5 +38,17 @@ func UpdateResources(db *pgx.Conn) error {
 		SET amount = amount + production_per_second
 		FROM "factory" WHERE "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level
 		`)
+	return err
+}
+
+func Upgrade(db *pgx.Conn, input UpgradeInput) error {
+	_, err := db.Exec(context.Background(),
+		`UPDATE "user_resource"
+		SET factory_level = "user_resource".factory_level + 1
+		FROM "factory" WHERE "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level
+		AND "user_resource".username=$1 AND "user_resource".resource_name=$2`,
+		input.Username,
+		input.ResourceName,
+	)
 	return err
 }

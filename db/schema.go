@@ -142,8 +142,8 @@ func InitialiseSchema(db *pgx.Conn) error {
 		CREATE TABLE IF NOT EXISTS "user_resource"(
 			resource_name VARCHAR(6) NOT NULL REFERENCES "resource" ON DELETE CASCADE,
 			username VARCHAR(100) NOT NULL REFERENCES "user" ON DELETE CASCADE,
-			factory_level INTEGER DEFAULT 1 NOT NULL,
-			amount INTEGER DEFAULT 0 NOT NULL,
+			factory_level INTEGER DEFAULT 1 NOT NULL CHECK (factory_level <= 5),
+			amount INTEGER DEFAULT 0 NOT NULL CHECK (amount >= 0),
 			time_until_upgrade_complete INTEGER,
 			PRIMARY KEY (resource_name, username)
 		);

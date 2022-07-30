@@ -70,13 +70,27 @@ func main() {
 		}
 		data, err := db.GetDashboardData(conn, userInput)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(data)
 
+	})
+
+	r.Post("/upgrade", func(w http.ResponseWriter, r *http.Request) {
+		var upgradeInput db.UpgradeInput
+		err := json.NewDecoder(r.Body).Decode(&upgradeInput)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if err := db.Upgrade(conn, upgradeInput); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	})
 
 	fmt.Println("Server running on localhost:8080")
@@ -86,8 +100,7 @@ func main() {
 func update() {
 	for range time.Tick(time.Second * 1) {
 		go func() {
-			err := db.UpdateResources(conn)
-			if err != nil {
+			if err := db.UpdateResources(conn); err != nil {
 				fmt.Println(fmt.Errorf("update failed : %w", err))
 				return
 			}
