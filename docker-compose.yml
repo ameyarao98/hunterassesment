@@ -1,0 +1,24 @@
+version: "3"
+services:
+  backend:
+    build: ./
+    environment:
+      - POSTGRES_DSN=postgres://user:pa$$word@db
+    ports:
+      - '8080:8080'
+    depends_on:
+      - "db"
+
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pa$$word
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+volumes:
+  db:
+    driver: local
