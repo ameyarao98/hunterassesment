@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type DashboardData struct {
@@ -15,7 +15,7 @@ type DashboardData struct {
 	TimeUntilUpgradeComplete *int           `json:"time_until_upgrade_complete"`
 }
 
-func GetDashboardData(db *pgx.Conn, input User) ([]DashboardData, error) {
+func GetDashboardData(db *pgxpool.Pool, input User) ([]DashboardData, error) {
 	rows, err := db.Query(context.Background(), `
 	SELECT "user_resource".resource_name,"user_resource".amount,"user_resource".factory_level,"factory".production_per_second,"factory".upgrade_cost, "user_resource".time_until_upgrade_complete
 	FROM "factory" INNER JOIN "user_resource" ON "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level

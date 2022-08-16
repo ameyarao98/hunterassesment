@@ -10,19 +10,19 @@ import (
 
 	"github.com/ameyarao98/hunterassesment/db"
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 var resources = [3]string{"iron", "copper", "gold"}
-var conn *pgx.Conn
+var conn *pgxpool.Pool
 
 func main() {
 	var err error
-	conn, err = pgx.Connect(context.Background(), os.Getenv("POSTGRES_DSN"))
+	conn, err = pgxpool.Connect(context.Background(), os.Getenv("POSTGRES_DSN"))
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close(context.Background())
+	defer conn.Close()
 
 	if err := db.InitialiseSchema(conn); err != nil {
 		panic(err)
@@ -74,7 +74,7 @@ func main() {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(data)
 
 	})

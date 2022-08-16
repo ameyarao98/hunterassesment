@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func InitialiseSchema(db *pgx.Conn) error {
+func InitialiseSchema(db *pgxpool.Pool) error {
 	if _, err := db.Exec(context.Background(),
 		`
 		CREATE TABLE IF NOT EXISTS "user"(username VARCHAR(100) PRIMARY KEY);
@@ -21,7 +21,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 			('gold') ON CONFLICT (resource_name) DO NOTHING;
 		
 		CREATE TABLE IF NOT EXISTS "factory"(
-			id SERIAL PRIMARY KEY,
+			id INTEGER PRIMARY KEY,
 			resource_name VARCHAR(6) NOT NULL REFERENCES "resource" ON DELETE CASCADE,
 			factory_level INTEGER NOT NULL,
 			production_per_second INTEGER NOT NULL,
@@ -78,7 +78,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 				1,
 				3,
 				15,
-				'{ "iron": 200, "copper": 70}'
+				'{ "iron": 200, "copper": 70, "gold": 0}'
 			),
 			(
 				7,
@@ -86,7 +86,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 				2,
 				7,
 				30,
-				'{ "iron": 400, "copper": 150}'
+				'{ "iron": 400, "copper": 150, "gold": 0}'
 			),
 			(
 				8,
@@ -94,7 +94,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 				3,
 				14,
 				60,
-				'{ "iron": 800, "copper": 300}'
+				'{ "iron": 800, "copper": 300, "gold": 0}'
 			),
 			(
 				9,
@@ -102,7 +102,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 				4,
 				30,
 				90,
-				'{ "iron": 1600, "copper": 600}'
+				'{ "iron": 1600, "copper": 600, "gold": 0}'
 			),
 			(10, 'copper', 5, 60, 120, '{}'),
 			(
@@ -111,7 +111,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 				1,
 				2,
 				15,
-				'{ "copper": 100, "gold": 2}'
+				'{ "iron": 0, "copper": 100, "gold": 2}'
 			),
 			(
 				12,
@@ -119,7 +119,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 				2,
 				3,
 				30,
-				'{ "copper": 200, "gold": 4}'
+				'{ "iron": 0, "copper": 200, "gold": 4}'
 			),
 			(
 				13,
@@ -127,7 +127,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 				3,
 				4,
 				60,
-				'{ "copper": 400, "gold": 8}'
+				'{ "iron": 0, "copper": 400, "gold": 8}'
 			),
 			(
 				14,
@@ -135,7 +135,7 @@ func InitialiseSchema(db *pgx.Conn) error {
 				4,
 				6,
 				90,
-				'{ "copper": 800, "gold": 16}'
+				'{ "iron": 0, "copper": 800, "gold": 16}'
 			),
 			(15, 'gold', 5, 8, 120, '{}') ON CONFLICT (id) DO NOTHING;
 		
