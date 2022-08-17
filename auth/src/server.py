@@ -4,6 +4,7 @@ from databases import Database
 from sanic import Sanic, response
 from sanic.request import Request
 from sanic_cors import CORS
+from sanic_jwt import exceptions, initialize
 
 app = Sanic("gotta-chat")
 CORS(app)
@@ -16,7 +17,8 @@ async def setup_db(app):
     await app.ctx.db.execute(
         query="""
         CREATE TABLE IF NOT EXISTS "user"(
-            username VARCHAR(100) PRIMARY KEY, 
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(100) UNIQUE, 
             password VARCHAR(256)
         )
             """
@@ -28,8 +30,24 @@ async def close_db(app):
     await app.ctx.db.disconnect()
 
 
-@app.get("/")
-async def healthcheck(request: Request):
+async def authenticate(request, *args, **kwargs):
+    user = await app.ctx.db.fetch_one(
+        query="""SELECT (id, username) FROM "user" WHERE username = :username and password = :password""",
+        values={
+            "username": request.json["username"],
+            "password": request.json["password"],
+        },
+    )
+    if user is None:
+        raise exceptions.AuthenticationFailed("user not found")
+    return user._mapping
+
+
+initialize(app, authenticate=authenticate, user_id="id")
+
+
+@app.get("/healthcheck")
+async def healthcheck(_: Request):
     return response.text("auth")
 
 

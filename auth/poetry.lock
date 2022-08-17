@@ -165,6 +165,20 @@ docs = ["furo (>=2021.7.5b38)", "proselint (>=0.10.2)", "sphinx-autodoc-typehint
 test = ["appdirs (==1.4.4)", "pytest-cov (>=2.7)", "pytest-mock (>=3.6)", "pytest (>=6)"]
 
 [[package]]
+name = "pyjwt"
+version = "2.4.0"
+description = "JSON Web Token implementation in Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+crypto = ["cryptography (>=3.3.1)"]
+dev = ["sphinx", "sphinx-rtd-theme", "zope.interface", "cryptography (>=3.3.1)", "pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)", "mypy", "pre-commit"]
+docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
+tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
+
+[[package]]
 name = "pyparsing"
 version = "3.0.9"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -211,6 +225,21 @@ python-versions = "*"
 [package.dependencies]
 packaging = ">=21.3"
 sanic = ">=21.9.3"
+
+[[package]]
+name = "sanic-jwt"
+version = "1.8.0"
+description = "JWT oauth flow for Sanic"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pyjwt = ">=2.1.0,<3.0.0"
+
+[package.extras]
+all = ["sphinx", "Jinja2 (<3.1)"]
+docs = ["sphinx", "Jinja2 (<3.1)"]
 
 [[package]]
 name = "sanic-routing"
@@ -292,7 +321,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "ea9ee9c5fe3266d8305072e75f3984217b365ba1d743f548b59632d9da644d7e"
+content-hash = "eb42966e7ad95696c74add9b40681fbfd5a8c1044da1291a7730a4ebf0a7d80f"
 
 [metadata.files]
 aiofiles = []
@@ -309,9 +338,11 @@ mypy-extensions = []
 packaging = []
 pathspec = []
 platformdirs = []
+pyjwt = []
 pyparsing = []
 sanic = []
 sanic-cors = []
+sanic-jwt = []
 sanic-routing = []
 sqlalchemy = []
 tomli = []
