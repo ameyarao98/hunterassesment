@@ -62,6 +62,8 @@ Fz3LtcsKft/CalTSprWTiBxzDbHm2SV1P0N2opGrYQFf7xvic/uXpzKEAoCvldCg
 XOyitmKR56vg7enOXQ9td/H7l2jIG5oytKNN3/ed42Q8zHlX2aaIMkXRVLkmGp4=
 -----END RSA PRIVATE KEY-----
 """
+
+
 @app.listener("before_server_start")
 async def setup_db(app):
     app.ctx.db = Database(os.getenv("POSTGRES_DSN"))
@@ -75,11 +77,6 @@ async def setup_db(app):
         )
             """
     )
-
-
-@app.listener("before_server_stop")
-async def close_db(app):
-    await app.ctx.db.disconnect()
 
 
 @app.get("/healthcheck")
@@ -100,9 +97,9 @@ async def singup(request: Request):
 
 
 @app.post("/auth")
-async def singup(request: Request):
+async def auth(request: Request):
     user = await app.ctx.db.fetch_one(
-        query="""SELECT (id, username) FROM "user" WHERE username = :username and password = :password""",
+        query="""SELECT (id, username) FROM "user" WHERE username=:username and password=:password""",
         values={
             "username": request.json["username"],
             "password": request.json["password"],
@@ -110,4 +107,13 @@ async def singup(request: Request):
     )
     if user is None:
         raise exceptions.Unauthorized("user not found")
-    return response.text(jwt.encode({"id": user[0], "username": user[1]}, PRIVATE_KEY, algorithm="RS256"))
+    return response.text(
+        jwt.encode(
+            {
+                "id": user._mapping["row"][0],
+                "username": user._mapping["row"][1],
+            },
+            PRIVATE_KEY,
+            algorithm="RS256",
+        )
+    )
