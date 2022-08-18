@@ -227,21 +227,6 @@ packaging = ">=21.3"
 sanic = ">=21.9.3"
 
 [[package]]
-name = "sanic-jwt"
-version = "1.8.0"
-description = "JWT oauth flow for Sanic"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-pyjwt = ">=2.1.0,<3.0.0"
-
-[package.extras]
-all = ["sphinx", "Jinja2 (<3.1)"]
-docs = ["sphinx", "Jinja2 (<3.1)"]
-
-[[package]]
 name = "sanic-routing"
 version = "22.3.0"
 description = "Core routing component for Sanic"
@@ -321,7 +306,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "eb42966e7ad95696c74add9b40681fbfd5a8c1044da1291a7730a4ebf0a7d80f"
+content-hash = "258c0f4ba40cbdcbdddd340d577f6611e4ab1e4ef59430dc3fc1698d235ba87e"
 
 [metadata.files]
 aiofiles = []
@@ -342,7 +327,6 @@ pyjwt = []
 pyparsing = []
 sanic = []
 sanic-cors = []
-sanic-jwt = []
 sanic-routing = []
 sqlalchemy = []
 tomli = []

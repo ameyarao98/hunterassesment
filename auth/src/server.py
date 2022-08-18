@@ -1,10 +1,10 @@
 import os
 
+import jwt
 from databases import Database
-from sanic import Sanic, response
+from sanic import Sanic, exceptions, response
 from sanic.request import Request
 from sanic_cors import CORS
-from sanic_jwt import exceptions, initialize
 
 app = Sanic("gotta-chat")
 CORS(app)
@@ -30,22 +30,6 @@ async def close_db(app):
     await app.ctx.db.disconnect()
 
 
-async def authenticate(request, *args, **kwargs):
-    user = await app.ctx.db.fetch_one(
-        query="""SELECT (id, username) FROM "user" WHERE username = :username and password = :password""",
-        values={
-            "username": request.json["username"],
-            "password": request.json["password"],
-        },
-    )
-    if user is None:
-        raise exceptions.AuthenticationFailed("user not found")
-    return user._mapping
-
-
-initialize(app, authenticate=authenticate, user_id="id")
-
-
 @app.get("/healthcheck")
 async def healthcheck(_: Request):
     return response.text("auth")
@@ -61,3 +45,17 @@ async def singup(request: Request):
         },
     )
     return response.empty()
+
+
+@app.post("/auth")
+async def singup(request: Request):
+    user = await app.ctx.db.fetch_one(
+        query="""SELECT (id, username) FROM "user" WHERE username = :username and password = :password""",
+        values={
+            "username": request.json["username"],
+            "password": request.json["password"],
+        },
+    )
+    if user is None:
+        raise exceptions.Unauthorized("user not found")
+    return response.text(jwt.encode(dict(user._mapping), "key", algorithm="HS256"))
