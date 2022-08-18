@@ -110,4 +110,4 @@ async def singup(request: Request):
     )
     if user is None:
         raise exceptions.Unauthorized("user not found")
-    return response.text(jwt.encode(dict(user._mapping), PRIVATE_KEY, algorithm="RS256"))
+    return response.text(jwt.encode({"id": user[0], "username": user[1]}, PRIVATE_KEY, algorithm="RS256"))
