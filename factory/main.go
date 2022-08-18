@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -31,6 +33,12 @@ func main() {
 				FROM "factory" WHERE "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level`)
 		}
 	}()
+
+	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "factory")
+	})
+	fmt.Println("Server running")
+	http.ListenAndServe(":8080", nil)
 
 }
 
