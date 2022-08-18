@@ -110,8 +110,8 @@ async def auth(request: Request):
     return response.text(
         jwt.encode(
             {
-                "id": user._mapping["row"][0],
-                "username": user._mapping["row"][1],
+                "id": user.row[0],
+                "username": user.row[1],
             },
             PRIVATE_KEY,
             algorithm="RS256",
