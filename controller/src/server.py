@@ -4,7 +4,7 @@ import typing
 
 import jwt
 import strawberry
-from sanic import Sanic, exceptions, response
+from sanic import Blueprint, Sanic, exceptions, response
 from sanic.request import Request
 from sanic_cors import CORS
 from strawberry.sanic.views import GraphQLView
@@ -18,22 +18,12 @@ async def get_auth_public_key(app):
     app.ctx.auth_public_key = os.getenv("AUTH_PUBLIC_KEY")
 
 
-async def verify_authorization(request):
-    try:
-        claims = jwt.decode(
-            request.headers.get("Creds"), app.ctx.auth_public_key, algorithms="RS256"
-        )
-    except jwt.DecodeError:
-        raise exceptions.Unauthorized("Invalid creds")
-    request.ctx.user_id = claims["id"]
-
-
-app.register_middleware(verify_authorization, "request")
-
-
 @app.get("/healthcheck")
 async def healthcheck(request: Request):
     return response.text("controller")
+
+
+graphql_blueprint = Blueprint("graphql")
 
 
 @strawberry.type
@@ -43,7 +33,6 @@ class FactoryData:
     production_per_second: int
     next_upgrade_duration: int | None
     # upgrade_cost: dict
-
 
 
 @strawberry.type
@@ -71,7 +60,9 @@ class Mutation:
 @strawberry.type
 class Subscription:
     @strawberry.subscription
-    async def user_resources(self, info) -> typing.AsyncGenerator[typing.List[UserResourceData], None]:
+    async def user_resources(
+        self, info
+    ) -> typing.AsyncGenerator[typing.List[UserResourceData], None]:
         x = 0
         while True:
             yield [
@@ -85,13 +76,19 @@ class Subscription:
             x += 1
             await asyncio.sleep(1)
 
+    @strawberry.subscription
+    async def count(self, target: int = 100) -> typing.AsyncGenerator[int, None]:
+        for i in range(target):
+            yield i
+            await asyncio.sleep(0.5)
+
 
 class ControllerGraphQLView(GraphQLView):
     async def get_context(self, request: Request) -> typing.Dict:
         return request.ctx
 
 
-app.add_route(
+graphql_blueprint.add_route(
     ControllerGraphQLView.as_view(
         schema=strawberry.Schema(
             query=Query, mutation=Mutation, subscription=Subscription
@@ -99,3 +96,17 @@ app.add_route(
     ),
     "/graphql",
 )
+
+
+@graphql_blueprint.middleware("request")
+async def verify_authorization(request):
+    try:
+        claims = jwt.decode(
+            request.headers.get("Creds"), app.ctx.auth_public_key, algorithms="RS256"
+        )
+    except jwt.DecodeError:
+        raise exceptions.Unauthorized("Invalid creds")
+    request.ctx.user_id = claims["id"]
+
+
+app.blueprint(graphql_blueprint)
