@@ -7,6 +7,7 @@ x-common-variables:
 services:
   auth:
     build: ./auth
+    restart: on-failure
     environment:
       <<: *common-variables
       POSTGRES_DSN: postgres://user:pa$$word@auth_db
@@ -28,6 +29,7 @@ services:
 
   factory:
     build: ./factory
+    restart: on-failure
     environment:
       POSTGRES_DSN: postgres://user:pa$$word@factory_db
     ports:
@@ -48,6 +50,7 @@ services:
 
   controller:
     build: ./controller
+    restart: on-failure
     environment:
       <<: *common-variables
     ports:

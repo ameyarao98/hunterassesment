@@ -3,14 +3,31 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/ameyarao98/hunterassesment/factory/pb"
 	"github.com/jackc/pgx/v4/pgxpool"
+	grpc "google.golang.org/grpc"
 )
 
 var conn *pgxpool.Pool
+
+type server struct {
+	pb.UnimplementedFactoryServer
+}
+
+func (s *server) GetFactoryData(ctx context.Context, in *pb.GetFactoryDataRequest) (*pb.GetFactoryDataResponse, error) {
+	factoryDatas, err := getFactoryData()
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetFactoryDataResponse{
+		FactoryDatas: factoryDatas,
+	}, nil
+}
 
 func main() {
 	var err error
@@ -23,6 +40,15 @@ func main() {
 		panic(err)
 	}
 
+	listener, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		panic(err)
+	}
+	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "factory")
+	})
+	s := grpc.NewServer()
+	pb.RegisterFactoryServer(s, &server{})
 	go func() {
 		for range time.Tick(time.Second * 1) {
 			conn.Exec(context.Background(),
@@ -33,12 +59,10 @@ func main() {
 				FROM "factory" WHERE "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level`)
 		}
 	}()
-
-	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "factory")
-	})
 	fmt.Println("Server running")
-	http.ListenAndServe(":8080", nil)
+	if err := s.Serve(listener); err != nil {
+		panic(err)
+	}
 
 }
 
@@ -175,4 +199,32 @@ func initiliaseSchema() error {
 		return err
 	}
 	return nil
+}
+
+func getFactoryData() ([]*pb.FactoryData, error) {
+
+	rows, err := conn.Query(context.Background(), `
+	SELECT resource_name, factory_level, production_per_second, next_upgrade_duration
+	FROM "factory"`,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var dataz []*pb.FactoryData
+	for rows.Next() {
+		var data pb.FactoryData
+
+		if err := rows.Scan(&data.ResourceName, &data.FactoryLevel, &data.ProductionPerSecond, &data.NextUpgradeDuration); err != nil {
+			return nil, err
+		}
+		dataz = append(dataz, &data)
+	}
+
+	if rows.Err() != nil {
+		return nil, err
+	}
+	return dataz, nil
 }

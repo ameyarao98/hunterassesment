@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "/";
+
+message FactoryData {
+  string resource_name = 1;
+  int32 factory_level = 2;
+  int32 production_per_second = 3;
+  optional int32 next_upgrade_duration = 4;
+}
+
+message GetFactoryDataRequest {  }
+message GetFactoryDataResponse { repeated FactoryData factory_datas = 1; }
+
+service Factory {
+  rpc GetFactoryData(GetFactoryDataRequest) returns (GetFactoryDataResponse) {}
+}
