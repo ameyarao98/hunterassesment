@@ -71,7 +71,7 @@ class Mutation:
 @strawberry.type
 class Subscription:
     @strawberry.subscription
-    async def user_resource(self, info) -> typing.AsyncGenerator[UserResourceData, None]:
+    async def user_resources(self, info) -> typing.AsyncGenerator[typing.List[UserResourceData], None]:
         x = 0
         while True:
             yield [

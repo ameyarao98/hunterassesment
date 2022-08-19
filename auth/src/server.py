@@ -90,7 +90,7 @@ async def singup(request: Request):
         query="""INSERT INTO "user"(username, password) VALUES (:username, :password)""",
         values={
             "username": request.json["username"],
-            "password": request.json["password"],
+            "password": str(hash(request.json["password"])),
         },
     )
     return response.empty()
@@ -102,7 +102,7 @@ async def auth(request: Request):
         query="""SELECT (id, username) FROM "user" WHERE username=:username and password=:password""",
         values={
             "username": request.json["username"],
-            "password": request.json["password"],
+            "password": str(hash(request.json["password"])),
         },
     )
     if user is None:
