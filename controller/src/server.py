@@ -1,3 +1,4 @@
+import asyncio
 import os
 import typing
 
@@ -36,6 +37,16 @@ async def healthcheck(request: Request):
 
 
 @strawberry.type
+class FactoryData:
+    resource_name: str
+    factory_level: int
+    production_per_second: int
+    next_upgrade_duration: int | None
+    # upgrade_cost: dict
+
+
+
+@strawberry.type
 class UserResourceData:
     resource_name: str
     factory_level: int
@@ -46,22 +57,33 @@ class UserResourceData:
 @strawberry.type
 class Query:
     @strawberry.field
-    async def dashboard(self, info) -> typing.List[UserResourceData]:
-        return [
-            UserResourceData(
-                resource_name="asd",
-                factory_level=info.context.user_id,
-                amount=1,
-                time_until_upgrade_complete=None,
-            )
-        ]
+    async def factory_data(self, info) -> typing.List[FactoryData]:
+        return []
 
 
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    async def upgrade_factory(self, info, resource_name: str) -> None:
-        ...
+    async def upgrade_factory(self, info, resource_name: str) -> bool:
+        return True
+
+
+@strawberry.type
+class Subscription:
+    @strawberry.subscription
+    async def user_resource(self, info) -> typing.AsyncGenerator[UserResourceData, None]:
+        x = 0
+        while True:
+            yield [
+                UserResourceData(
+                    resource_name="asd",
+                    factory_level=info.context.user_id,
+                    amount=x,
+                    time_until_upgrade_complete=None,
+                )
+            ]
+            x += 1
+            await asyncio.sleep(1)
 
 
 class ControllerGraphQLView(GraphQLView):
@@ -71,7 +93,9 @@ class ControllerGraphQLView(GraphQLView):
 
 app.add_route(
     ControllerGraphQLView.as_view(
-        schema=strawberry.Schema(query=Query, mutation=Mutation)
+        schema=strawberry.Schema(
+            query=Query, mutation=Mutation, subscription=Subscription
+        )
     ),
     "/graphql",
 )
