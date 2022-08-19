@@ -202,7 +202,6 @@ func initiliaseSchema() error {
 }
 
 func getFactoryData() ([]*pb.FactoryData, error) {
-
 	rows, err := conn.Query(context.Background(), `
 	SELECT resource_name, factory_level, production_per_second, next_upgrade_duration
 	FROM "factory"`,
