@@ -53,6 +53,10 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
+    async def enter_game(self, info) -> bool:
+        return True
+
+    @strawberry.mutation
     async def upgrade_factory(self, info, resource_name: str) -> bool:
         return True
 
