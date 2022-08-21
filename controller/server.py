@@ -66,11 +66,25 @@ class Query:
 class Mutation:
     @strawberry.mutation
     async def enter_game(self, info) -> bool:
-        return True
+        return (
+            app.ctx.grpc_client.CreateUser.future(
+                factory_pb2.CreateUserRequest(user_id=info.context.user_id)
+            )
+            .result()
+            .created
+        )
 
     @strawberry.mutation
     async def upgrade_factory(self, info, resource_name: str) -> bool:
-        return True
+        return (
+            app.ctx.grpc_client.UpgradeFactory.future(
+                factory_pb2.UpgradeFactoryRequest(
+                    user_id=info.context.user_id, resource_name=resource_name
+                )
+            )
+            .result()
+            .upgraded
+        )
 
 
 @strawberry.type
