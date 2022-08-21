@@ -7,5 +7,5 @@ RUN pip3 install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install
 
-COPY server.py ./
+COPY . ./
 CMD ["sanic","server.app","--host=0.0.0.0","--port=3000"]

@@ -1,0 +1,1 @@
+`poetry run python -m grpc_tools.protoc --proto_path=../factory factory.proto --python_out=. --grpc_python_out=.`

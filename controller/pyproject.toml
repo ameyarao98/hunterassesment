@@ -10,6 +10,8 @@ sanic = "^22.6.2"
 Sanic-Cors = "^2.1.0"
 PyJWT = "^2.4.0"
 strawberry-graphql = "^0.125.1"
+grpcio = "^1.48.0"
+grpcio-tools = "^1.48.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"

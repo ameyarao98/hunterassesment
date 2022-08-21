@@ -63,6 +63,32 @@ optional = false
 python-versions = ">=3.6,<4"
 
 [[package]]
+name = "grpcio"
+version = "1.48.0"
+description = "HTTP/2-based RPC framework"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+six = ">=1.5.2"
+
+[package.extras]
+protobuf = ["grpcio-tools (>=1.48.0)"]
+
+[[package]]
+name = "grpcio-tools"
+version = "1.48.0"
+description = "Protobuf code generator for gRPC"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+grpcio = ">=1.48.0"
+protobuf = ">=3.12.0,<4.0dev"
+
+[[package]]
 name = "httptools"
 version = "0.4.0"
 description = "A collection of framework independent HTTP protocol utils."
@@ -133,6 +159,14 @@ python-versions = ">=3.7"
 [package.extras]
 docs = ["furo (>=2021.7.5b38)", "proselint (>=0.10.2)", "sphinx-autodoc-typehints (>=1.12)", "sphinx (>=4)"]
 test = ["appdirs (==1.4.4)", "pytest-cov (>=2.7)", "pytest-mock (>=3.6)", "pytest (>=6)"]
+
+[[package]]
+name = "protobuf"
+version = "3.20.1"
+description = "Protocol Buffers"
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "pygments"
@@ -323,7 +357,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "f564c5f2a425af219b780c4eb274f9827b440a454ae4692aa7a6256ab5170d41"
+content-hash = "642c8ff6e31679b1c680f4e6c6d122970647c7fe62d04abe4dd27c2304124ecb"
 
 [metadata.files]
 aiofiles = []
@@ -332,6 +366,8 @@ black = []
 click = []
 colorama = []
 graphql-core = []
+grpcio = []
+grpcio-tools = []
 httptools = []
 isort = []
 multidict = []
@@ -339,6 +375,7 @@ mypy-extensions = []
 packaging = []
 pathspec = []
 platformdirs = []
+protobuf = []
 pygments = []
 pyjwt = []
 pyparsing = []

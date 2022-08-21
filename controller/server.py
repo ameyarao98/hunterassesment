@@ -2,12 +2,15 @@ import asyncio
 import os
 import typing
 
+import grpc
 import jwt
 import strawberry
-from sanic import Blueprint, Sanic, exceptions, response
-from sanic.request import Request
+from sanic import Blueprint, Sanic, exceptions, request, response
 from sanic_cors import CORS
 from strawberry.sanic.views import GraphQLView
+
+import factory_pb2
+import factory_pb2_grpc
 
 app = Sanic("gotta-chat")
 CORS(app)
@@ -16,10 +19,13 @@ CORS(app)
 @app.listener("before_server_start")
 async def get_auth_public_key(app):
     app.ctx.auth_public_key = os.getenv("AUTH_PUBLIC_KEY")
+    app.ctx.grpc_client = factory_pb2_grpc.FactoryStub(
+        grpc.insecure_channel("factory:8080")
+    )
 
 
 @app.get("/healthcheck")
-async def healthcheck(request: Request):
+async def healthcheck(request: request.Request):
     return response.text("controller")
 
 
@@ -47,7 +53,13 @@ class UserResourceData:
 class Query:
     @strawberry.field
     async def factory_data(self, info) -> typing.List[FactoryData]:
-        return []
+        return (
+            app.ctx.grpc_client.GetFactoryData.future(
+                factory_pb2.GetFactoryDataRequest()
+            )
+            .result()
+            .factory_datas
+        )
 
 
 @strawberry.type
@@ -88,7 +100,7 @@ class Subscription:
 
 
 class ControllerGraphQLView(GraphQLView):
-    async def get_context(self, request: Request) -> typing.Dict:
+    async def get_context(self, request: request.Request) -> typing.Dict:
         return request.ctx
 
 

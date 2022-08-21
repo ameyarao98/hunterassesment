@@ -2,8 +2,7 @@ import os
 
 import jwt
 from databases import Database
-from sanic import Sanic, exceptions, response
-from sanic.request import Request
+from sanic import Sanic, exceptions, request, response
 from sanic_cors import CORS
 
 app = Sanic("gotta-chat")
@@ -80,12 +79,12 @@ async def setup_db(app):
 
 
 @app.get("/healthcheck")
-async def healthcheck(_: Request):
+async def healthcheck(_: request.Request):
     return response.text("auth")
 
 
 @app.post("/signup")
-async def singup(request: Request):
+async def singup(request: request.Request):
     await app.ctx.db.execute(
         query="""INSERT INTO "user"(username, password) VALUES (:username, :password)""",
         values={
@@ -97,7 +96,7 @@ async def singup(request: Request):
 
 
 @app.post("/auth")
-async def auth(request: Request):
+async def auth(request: request.Request):
     user = await app.ctx.db.fetch_one(
         query="""SELECT (id, username) FROM "user" WHERE username=:username and password=:password""",
         values={
