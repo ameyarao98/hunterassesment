@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ameyarao98/hunterassesment/factory/pb"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	grpc "google.golang.org/grpc"
 )
@@ -20,12 +21,22 @@ type server struct {
 }
 
 func (s *server) GetFactoryData(ctx context.Context, in *pb.GetFactoryDataRequest) (*pb.GetFactoryDataResponse, error) {
-	factoryDatas, err := getFactoryData()
+	factoryDatas, err := getFactoryData(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &pb.GetFactoryDataResponse{
 		FactoryDatas: factoryDatas,
+	}, nil
+}
+
+func (s *server) CreateUser(ctx context.Context, in *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
+	created, err := createUser(ctx, int(in.UserId))
+	if err != nil {
+		return nil, err
+	}
+	return &pb.CreateUserResponse{
+		Created: created,
 	}, nil
 }
 
@@ -69,7 +80,7 @@ func main() {
 func initiliaseSchema() error {
 	if _, err := conn.Exec(
 		context.Background(),
-		`CREATE TABLE IF NOT EXISTS "resource"(resource_name VARCHAR(6) PRIMARY KEY);
+		`CREATE TABLE IF NOT EXISTS "resource"(resource_name VARCHAR(20) PRIMARY KEY);
 		INSERT INTO "resource" (resource_name) VALUES ('iron'),('copper'),('gold') ON CONFLICT (resource_name) DO NOTHING;`,
 	); err != nil {
 		return err
@@ -201,7 +212,7 @@ func initiliaseSchema() error {
 	return nil
 }
 
-func getFactoryData() ([]*pb.FactoryData, error) {
+func getFactoryData(ctx context.Context) ([]*pb.FactoryData, error) {
 	rows, err := conn.Query(context.Background(), `
 	SELECT resource_name, factory_level, production_per_second, next_upgrade_duration
 	FROM "factory"`,
@@ -226,4 +237,47 @@ func getFactoryData() ([]*pb.FactoryData, error) {
 		return nil, err
 	}
 	return dataz, nil
+}
+
+func createUser(ctx context.Context, user_id int) (bool, error) {
+	rows, err := conn.Query(context.Background(), `
+	SELECT resource_name FROM "resource"`,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	defer rows.Close()
+
+	var resources []string
+	for rows.Next() {
+		var resource string
+
+		if err := rows.Scan(&resource); err != nil {
+			return false, err
+		}
+		resources = append(resources, resource)
+	}
+
+	if rows.Err() != nil {
+		return false, err
+	}
+
+	var resourceRows [][]any
+
+	for i := 0; i < len(resources); i++ {
+		resourceRows = append(resourceRows, []any{resources[i], user_id})
+	}
+
+	copyCount, err := conn.CopyFrom(
+		ctx,
+		pgx.Identifier{"user_resource"},
+		[]string{"resource_name", "user_id"},
+		pgx.CopyFromRows(resourceRows),
+	)
+	if err != nil {
+		return false, err
+	}
+	return copyCount > 0, nil
+
 }
