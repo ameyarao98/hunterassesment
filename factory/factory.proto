@@ -15,7 +15,11 @@ message GetFactoryDataResponse { repeated FactoryData factory_datas = 1; }
 message CreateUserRequest { int32 user_id = 1; }
 message CreateUserResponse { bool created = 1; }
 
+message UpgradeFactoryRequest { int32 user_id = 1; string resource_name = 2; }
+message UpgradeFactoryResponse { bool upgraded = 1; }
+
 service Factory {
   rpc GetFactoryData(GetFactoryDataRequest) returns (GetFactoryDataResponse) {}
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+  rpc UpgradeFactory(UpgradeFactoryRequest) returns (UpgradeFactoryResponse) {}
 }

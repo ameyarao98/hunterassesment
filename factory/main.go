@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -37,6 +38,16 @@ func (s *server) CreateUser(ctx context.Context, in *pb.CreateUserRequest) (*pb.
 	}
 	return &pb.CreateUserResponse{
 		Created: created,
+	}, nil
+}
+
+func (s *server) UpgradeFactory(ctx context.Context, in *pb.UpgradeFactoryRequest) (*pb.UpgradeFactoryResponse, error) {
+	upgraded, err := upgradeFactory(ctx, int(in.UserId), in.ResourceName)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.UpgradeFactoryResponse{
+		Upgraded: upgraded,
 	}, nil
 }
 
@@ -239,7 +250,7 @@ func getFactoryData(ctx context.Context) ([]*pb.FactoryData, error) {
 	return dataz, nil
 }
 
-func createUser(ctx context.Context, user_id int) (bool, error) {
+func createUser(ctx context.Context, userID int) (bool, error) {
 	rows, err := conn.Query(context.Background(), `
 	SELECT resource_name FROM "resource"`,
 	)
@@ -266,7 +277,7 @@ func createUser(ctx context.Context, user_id int) (bool, error) {
 	var resourceRows [][]any
 
 	for i := 0; i < len(resources); i++ {
-		resourceRows = append(resourceRows, []any{resources[i], user_id})
+		resourceRows = append(resourceRows, []any{resources[i], userID})
 	}
 
 	copyCount, err := conn.CopyFrom(
@@ -280,4 +291,40 @@ func createUser(ctx context.Context, user_id int) (bool, error) {
 	}
 	return copyCount > 0, nil
 
+}
+
+func upgradeFactory(ctx context.Context, userID int, resourceName string) (bool, error) {
+	var factoryLevel int
+	var timeUntilUpgradeComplete *int
+	var upgradeCost map[string]int
+	if err := conn.
+		QueryRow(context.Background(),
+			`SELECT "user_resource".factory_level, "user_resource".time_until_upgrade_complete, "factory".upgrade_cost
+			FROM "factory" INNER JOIN "user_resource" ON "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level
+			WHERE "user_resource".user_id=$1 AND "user_resource".resource_name=$2`,
+			userID, resourceName).
+		Scan(&factoryLevel, &timeUntilUpgradeComplete, &upgradeCost); err != nil {
+		return false, err
+	}
+
+	if timeUntilUpgradeComplete != nil {
+		return false, errors.New("upgrade already in progress")
+	}
+	if factoryLevel == 5 {
+		return false, errors.New("factory level cannot go higher")
+	}
+	_, err := conn.Exec(context.Background(),
+		`UPDATE "user_resource"
+		SET time_until_upgrade_complete = CASE "user_resource".resource_name WHEN $1 THEN "factory".next_upgrade_duration ELSE time_until_upgrade_complete END, 
+		amount = amount - ($2::json ->> "factory".resource_name)::integer
+		FROM "factory" WHERE "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level
+		AND "user_resource".user_id=$3`,
+		resourceName,
+		upgradeCost,
+		userID,
+	)
+	if err != nil {
+		return false, err
+	}
+	return true, err
 }

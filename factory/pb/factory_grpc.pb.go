@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type FactoryClient interface {
 	GetFactoryData(ctx context.Context, in *GetFactoryDataRequest, opts ...grpc.CallOption) (*GetFactoryDataResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
+	UpgradeFactory(ctx context.Context, in *UpgradeFactoryRequest, opts ...grpc.CallOption) (*UpgradeFactoryResponse, error)
 }
 
 type factoryClient struct {
@@ -52,12 +53,22 @@ func (c *factoryClient) CreateUser(ctx context.Context, in *CreateUserRequest, o
 	return out, nil
 }
 
+func (c *factoryClient) UpgradeFactory(ctx context.Context, in *UpgradeFactoryRequest, opts ...grpc.CallOption) (*UpgradeFactoryResponse, error) {
+	out := new(UpgradeFactoryResponse)
+	err := c.cc.Invoke(ctx, "/Factory/UpgradeFactory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FactoryServer is the server API for Factory service.
 // All implementations must embed UnimplementedFactoryServer
 // for forward compatibility
 type FactoryServer interface {
 	GetFactoryData(context.Context, *GetFactoryDataRequest) (*GetFactoryDataResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
+	UpgradeFactory(context.Context, *UpgradeFactoryRequest) (*UpgradeFactoryResponse, error)
 	mustEmbedUnimplementedFactoryServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedFactoryServer) GetFactoryData(context.Context, *GetFactoryDat
 }
 func (UnimplementedFactoryServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedFactoryServer) UpgradeFactory(context.Context, *UpgradeFactoryRequest) (*UpgradeFactoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpgradeFactory not implemented")
 }
 func (UnimplementedFactoryServer) mustEmbedUnimplementedFactoryServer() {}
 
@@ -120,6 +134,24 @@ func _Factory_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Factory_UpgradeFactory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpgradeFactoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FactoryServer).UpgradeFactory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Factory/UpgradeFactory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FactoryServer).UpgradeFactory(ctx, req.(*UpgradeFactoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Factory_ServiceDesc is the grpc.ServiceDesc for Factory service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var Factory_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _Factory_CreateUser_Handler,
+		},
+		{
+			MethodName: "UpgradeFactory",
+			Handler:    _Factory_UpgradeFactory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
