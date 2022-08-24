@@ -12,7 +12,7 @@ from strawberry.sanic.views import GraphQLView
 import factory_pb2
 import factory_pb2_grpc
 
-app = Sanic("gotta-chat")
+app = Sanic("controller")
 CORS(app)
 
 

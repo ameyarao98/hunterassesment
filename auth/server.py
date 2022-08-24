@@ -5,7 +5,7 @@ from databases import Database
 from sanic import Sanic, exceptions, request, response
 from sanic_cors import CORS
 
-app = Sanic("gotta-chat")
+app = Sanic("auth")
 CORS(app)
 
 PRIVATE_KEY = """
