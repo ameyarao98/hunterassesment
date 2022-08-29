@@ -1,3 +1,5 @@
+<script lang="ts"></script>
+
 <h1>Welcome to the mining game!</h1>
 
 <style>
