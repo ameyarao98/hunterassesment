@@ -1,1 +1,1 @@
-`protoc --proto_path=. factory.proto --go_out=. --go-grpc_out=.`
+protoc --proto_path=. factory.proto --go_out=. --go-grpc_out=.

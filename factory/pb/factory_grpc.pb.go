@@ -25,6 +25,7 @@ type FactoryClient interface {
 	GetFactoryData(ctx context.Context, in *GetFactoryDataRequest, opts ...grpc.CallOption) (*GetFactoryDataResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	UpgradeFactory(ctx context.Context, in *UpgradeFactoryRequest, opts ...grpc.CallOption) (*UpgradeFactoryResponse, error)
+	GetUserResourceData(ctx context.Context, in *GetUserResourceDataRequest, opts ...grpc.CallOption) (*GetUserResourceDataResponse, error)
 }
 
 type factoryClient struct {
@@ -62,6 +63,15 @@ func (c *factoryClient) UpgradeFactory(ctx context.Context, in *UpgradeFactoryRe
 	return out, nil
 }
 
+func (c *factoryClient) GetUserResourceData(ctx context.Context, in *GetUserResourceDataRequest, opts ...grpc.CallOption) (*GetUserResourceDataResponse, error) {
+	out := new(GetUserResourceDataResponse)
+	err := c.cc.Invoke(ctx, "/Factory/GetUserResourceData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FactoryServer is the server API for Factory service.
 // All implementations must embed UnimplementedFactoryServer
 // for forward compatibility
@@ -69,6 +79,7 @@ type FactoryServer interface {
 	GetFactoryData(context.Context, *GetFactoryDataRequest) (*GetFactoryDataResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	UpgradeFactory(context.Context, *UpgradeFactoryRequest) (*UpgradeFactoryResponse, error)
+	GetUserResourceData(context.Context, *GetUserResourceDataRequest) (*GetUserResourceDataResponse, error)
 	mustEmbedUnimplementedFactoryServer()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedFactoryServer) CreateUser(context.Context, *CreateUserRequest
 }
 func (UnimplementedFactoryServer) UpgradeFactory(context.Context, *UpgradeFactoryRequest) (*UpgradeFactoryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpgradeFactory not implemented")
+}
+func (UnimplementedFactoryServer) GetUserResourceData(context.Context, *GetUserResourceDataRequest) (*GetUserResourceDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserResourceData not implemented")
 }
 func (UnimplementedFactoryServer) mustEmbedUnimplementedFactoryServer() {}
 
@@ -152,6 +166,24 @@ func _Factory_UpgradeFactory_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Factory_GetUserResourceData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserResourceDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FactoryServer).GetUserResourceData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Factory/GetUserResourceData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FactoryServer).GetUserResourceData(ctx, req.(*GetUserResourceDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Factory_ServiceDesc is the grpc.ServiceDesc for Factory service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var Factory_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpgradeFactory",
 			Handler:    _Factory_UpgradeFactory_Handler,
+		},
+		{
+			MethodName: "GetUserResourceData",
+			Handler:    _Factory_GetUserResourceData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

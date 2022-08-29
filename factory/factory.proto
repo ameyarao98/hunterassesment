@@ -9,6 +9,14 @@ message FactoryData {
   optional int32 next_upgrade_duration = 4;
 }
 
+message UserResourceData {
+  string resource_name = 1;
+  int32 factory_level = 2;
+  int32 amount = 3;
+  int32 production_rate = 4;
+  optional int32 time_until_upgrade_complete = 5;
+}
+
 message GetFactoryDataRequest {  }
 message GetFactoryDataResponse { repeated FactoryData factory_datas = 1; }
 
@@ -18,8 +26,12 @@ message CreateUserResponse { bool created = 1; }
 message UpgradeFactoryRequest { int32 user_id = 1; string resource_name = 2; }
 message UpgradeFactoryResponse { bool upgraded = 1; }
 
+message GetUserResourceDataRequest { int32 user_id = 1;}
+message GetUserResourceDataResponse { repeated UserResourceData user_resource_datas = 1; }
+
 service Factory {
   rpc GetFactoryData(GetFactoryDataRequest) returns (GetFactoryDataResponse) {}
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
   rpc UpgradeFactory(UpgradeFactoryRequest) returns (UpgradeFactoryResponse) {}
+  rpc GetUserResourceData(GetUserResourceDataRequest) returns (GetUserResourceDataResponse) {}
 }

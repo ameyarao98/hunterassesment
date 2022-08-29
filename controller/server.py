@@ -1,6 +1,6 @@
-import asyncio
+# import asyncio
 import os
-import typing
+# import typing
 
 import grpc
 import jwt
@@ -45,6 +45,7 @@ class UserResourceData:
     resource_name: str
     factory_level: int
     amount: int
+    production_rate: int
     time_until_upgrade_complete: int | None
 
 
@@ -58,6 +59,16 @@ class Query:
             )
             .result()
             .factory_datas
+        )
+
+    @strawberry.field
+    async def user_resource_data(self, info) -> list[UserResourceData]:
+        return (
+            app.ctx.grpc_client.GetUserResourceData.future(
+                factory_pb2.GetUserResourceDataRequest(user_id=info.context.user_id)
+            )
+            .result()
+            .user_resource_datas
         )
 
 
@@ -114,7 +125,9 @@ class ControllerGraphQLView(GraphQLView):
 graphql_blueprint.add_route(
     ControllerGraphQLView.as_view(
         schema=strawberry.Schema(
-            query=Query, mutation=Mutation, subscription=Subscription
+            query=Query,
+            mutation=Mutation,
+            # subscription=Subscription,
         )
     ),
     "/graphql",

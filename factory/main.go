@@ -50,6 +50,15 @@ func (s *server) UpgradeFactory(ctx context.Context, in *pb.UpgradeFactoryReques
 		Upgraded: upgraded,
 	}, nil
 }
+func (s *server) GetUserResourceData(ctx context.Context, in *pb.GetUserResourceDataRequest) (*pb.GetUserResourceDataResponse, error) {
+	userResourceDatas, err := getUserResourceData(ctx, int(in.UserId))
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetUserResourceDataResponse{
+		UserResourceDatas: userResourceDatas,
+	}, nil
+}
 
 func main() {
 	var err error
@@ -327,4 +336,33 @@ func upgradeFactory(ctx context.Context, userID int, resourceName string) (bool,
 		return false, err
 	}
 	return true, err
+}
+
+func getUserResourceData(ctx context.Context, userID int) ([]*pb.UserResourceData, error) {
+	rows, err := conn.Query(context.Background(), `
+	SELECT "user_resource".resource_name,"user_resource".factory_level,"user_resource".amount,"factory".production_per_second,"user_resource".time_until_upgrade_complete
+	FROM "factory" INNER JOIN "user_resource" ON "factory".resource_name="user_resource".resource_name AND "factory".factory_level="user_resource".factory_level
+	WHERE "user_resource".user_id=$1`,
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var dataz []*pb.UserResourceData
+	for rows.Next() {
+		var data pb.UserResourceData
+
+		if err := rows.Scan(&data.ResourceName, &data.FactoryLevel, &data.Amount, &data.ProductionRate, &data.TimeUntilUpgradeComplete); err != nil {
+			return nil, err
+		}
+		dataz = append(dataz, &data)
+	}
+
+	if rows.Err() != nil {
+		return nil, err
+	}
+	return dataz, nil
 }
