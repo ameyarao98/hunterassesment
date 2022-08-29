@@ -13,7 +13,7 @@
 	let loginPassword: string;
 
 	let graphqlClient: GraphQLClient;
-	let factoryData;
+	let factoryData: [];
 
 	async function signup(username: string, password: string) {
 		const response = await fetch('http://localhost:8000/signup', {
@@ -69,7 +69,6 @@
 				}
 			});
 			jwt = await response.text();
-			gameJoined = true;
 			await setupGame();
 		}
 	}
@@ -79,6 +78,7 @@
 			headers: { creds: jwt }
 		});
 		await getFactoryData();
+		gameJoined = true;
 	}
 
 	async function getFactoryData() {
@@ -93,7 +93,8 @@
 			}
 		`;
 		const data = await graphqlClient.request(query);
-		factoryData = data.factoryData
+		factoryData = data.factoryData;
+		console.log(factoryData);
 	}
 </script>
 
@@ -105,9 +106,7 @@
 		<input class="field" type="password" bind:value={loginPassword} />
 		<button class="first" on:click={() => login(loginUsername, loginPassword)}> Login </button>
 	</div>
-{/if}
 
-{#if !gameJoined}
 	<div class="signup">
 		<input class="field" bind:value={signupUsername} />
 		<input class="field" type="password" bind:value={signupPassword} />
@@ -116,6 +115,16 @@
 {/if}
 
 {#if gameJoined}
+	<table class="factoryData">
+		{#each factoryData as { resourceName, factoryLevel, productionPerSecond, nextUpgradeDuration }}
+			<tr>
+				<th>{resourceName}</th>
+				<th>{factoryLevel}</th>
+				<th>{productionPerSecond}</th>
+				<th>{nextUpgradeDuration}</th>
+			</tr>
+		{/each}
+	</table>
 	<p class="jwt">{jwt}</p>
 {/if}
 
@@ -153,12 +162,25 @@
 		right: 1%;
 	}
 
+	.factoryData {
+		display: grid;
+		position: absolute;
+		bottom: 2%;
+		right: 1%;
+	}
+	th,
+	tr {
+		border: 1px solid black;
+	}
+
 	.jwt {
 		font-size: 1vh;
 		color: rgb(123, 255, 0);
 		position: absolute;
 		bottom: 0;
 		text-align: center;
+		opacity: 25%;
+		z-index: -123123;
 	}
 
 	button {
