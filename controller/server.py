@@ -38,7 +38,6 @@ class FactoryData:
     factory_level: int
     production_per_second: int
     next_upgrade_duration: int | None
-    # upgrade_cost: dict
 
 
 @strawberry.type
@@ -52,7 +51,7 @@ class UserResourceData:
 @strawberry.type
 class Query:
     @strawberry.field
-    async def factory_data(self, info) -> typing.List[FactoryData]:
+    async def factory_data(self, info) -> list[FactoryData]:
         return (
             app.ctx.grpc_client.GetFactoryData.future(
                 factory_pb2.GetFactoryDataRequest()
@@ -87,34 +86,28 @@ class Mutation:
         )
 
 
-@strawberry.type
-class Subscription:
-    @strawberry.subscription
-    async def user_resources(
-        self, info
-    ) -> typing.AsyncGenerator[typing.List[UserResourceData], None]:
-        x = 0
-        while True:
-            yield [
-                UserResourceData(
-                    resource_name="asd",
-                    factory_level=info.context.user_id,
-                    amount=x,
-                    time_until_upgrade_complete=None,
-                )
-            ]
-            x += 1
-            await asyncio.sleep(1)
-
-    @strawberry.subscription
-    async def count(self, target: int = 100) -> typing.AsyncGenerator[int, None]:
-        for i in range(target):
-            yield i
-            await asyncio.sleep(0.5)
+# @strawberry.type
+# class Subscription:
+#     @strawberry.subscription
+#     async def user_resources(
+#         self, info
+#     ) -> typing.AsyncGenerator[list[UserResourceData], None]:
+#         x = 0
+#         while True:
+#             yield [
+#                 UserResourceData(
+#                     resource_name="asd",
+#                     factory_level=info.context.user_id,
+#                     amount=x,
+#                     time_until_upgrade_complete=None,
+#                 )
+#             ]
+#             x += 1
+#             await asyncio.sleep(1)
 
 
 class ControllerGraphQLView(GraphQLView):
-    async def get_context(self, request: request.Request) -> typing.Dict:
+    async def get_context(self, request: request.Request) -> dict:
         return request.ctx
 
 
