@@ -78,7 +78,7 @@
 	<div class="login">
 		<input class="field" bind:value={loginUsername} />
 		<input class="field" type="password" bind:value={loginPassword} />
-		<button on:click={() => login(loginUsername, loginPassword)}> Login </button>
+		<button class="first" on:click={() => login(loginUsername, loginPassword)}> Login </button>
 	</div>
 {/if}
 
@@ -86,7 +86,7 @@
 	<div class="signup">
 		<input class="field" bind:value={signupUsername} />
 		<input class="field" type="password" bind:value={signupPassword} />
-		<button on:click={() => signup(signupUsername, signupPassword)}> Signup </button>
+		<button class="first" on:click={() => signup(signupUsername, signupPassword)}> Signup </button>
 	</div>
 {/if}
 
@@ -118,14 +118,14 @@
 		display: grid;
 		position: absolute;
 		bottom: 2%;
-		left: 0;
+		left: 1%;
 	}
 
 	.signup {
 		display: grid;
 		position: absolute;
 		bottom: 2%;
-		right: 0;
+		right: 1%;
 	}
 
 	.jwt {
@@ -133,6 +133,53 @@
 		color: rgb(123, 255, 0);
 		position: absolute;
 		bottom: 0;
+		text-align: center;
+	}
+
+	button {
+		box-sizing: border-box;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		background-color: transparent;
+		border: 2px solid #ffd90f;
+		border-radius: 0.6em;
+		color: #ffd90f;
+		cursor: pointer;
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-align-self: center;
+		-ms-flex-item-align: center;
+		align-self: center;
+		font-size: 1rem;
+		font-weight: 400;
+		line-height: 1;
+		margin: 20px;
+		padding: 1.2em 2.8em;
+		text-decoration: none;
+		text-align: center;
+		text-transform: uppercase;
+		font-family: 'Montserrat', sans-serif;
+		font-weight: 700;
+	}
+	button:hover,
+	button:focus {
+		color: black;
+		outline: 0;
+	}
+
+	.first {
+		-webkit-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+		transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+	}
+	.first:hover {
+		box-shadow: 0 0 40px 40px #ffd90f inset;
+	}
+
+	input {
+		padding: 0.6em 0em;
 		text-align: center;
 	}
 </style>
