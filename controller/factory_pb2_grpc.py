@@ -15,25 +15,25 @@ class FactoryStub(object):
             channel: A grpc.Channel.
         """
         self.GetFactoryData = channel.unary_unary(
-                '/Factory/GetFactoryData',
-                request_serializer=factory__pb2.GetFactoryDataRequest.SerializeToString,
-                response_deserializer=factory__pb2.GetFactoryDataResponse.FromString,
-                )
+            "/Factory/GetFactoryData",
+            request_serializer=factory__pb2.GetFactoryDataRequest.SerializeToString,
+            response_deserializer=factory__pb2.GetFactoryDataResponse.FromString,
+        )
         self.CreateUser = channel.unary_unary(
-                '/Factory/CreateUser',
-                request_serializer=factory__pb2.CreateUserRequest.SerializeToString,
-                response_deserializer=factory__pb2.CreateUserResponse.FromString,
-                )
+            "/Factory/CreateUser",
+            request_serializer=factory__pb2.CreateUserRequest.SerializeToString,
+            response_deserializer=factory__pb2.CreateUserResponse.FromString,
+        )
         self.UpgradeFactory = channel.unary_unary(
-                '/Factory/UpgradeFactory',
-                request_serializer=factory__pb2.UpgradeFactoryRequest.SerializeToString,
-                response_deserializer=factory__pb2.UpgradeFactoryResponse.FromString,
-                )
+            "/Factory/UpgradeFactory",
+            request_serializer=factory__pb2.UpgradeFactoryRequest.SerializeToString,
+            response_deserializer=factory__pb2.UpgradeFactoryResponse.FromString,
+        )
         self.GetUserResourceData = channel.unary_unary(
-                '/Factory/GetUserResourceData',
-                request_serializer=factory__pb2.GetUserResourceDataRequest.SerializeToString,
-                response_deserializer=factory__pb2.GetUserResourceDataResponse.FromString,
-                )
+            "/Factory/GetUserResourceData",
+            request_serializer=factory__pb2.GetUserResourceDataRequest.SerializeToString,
+            response_deserializer=factory__pb2.GetUserResourceDataResponse.FromString,
+        )
 
 
 class FactoryServicer(object):
@@ -42,124 +42,173 @@ class FactoryServicer(object):
     def GetFactoryData(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def CreateUser(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def UpgradeFactory(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def GetUserResourceData(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
 
 def add_FactoryServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetFactoryData': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetFactoryData,
-                    request_deserializer=factory__pb2.GetFactoryDataRequest.FromString,
-                    response_serializer=factory__pb2.GetFactoryDataResponse.SerializeToString,
-            ),
-            'CreateUser': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateUser,
-                    request_deserializer=factory__pb2.CreateUserRequest.FromString,
-                    response_serializer=factory__pb2.CreateUserResponse.SerializeToString,
-            ),
-            'UpgradeFactory': grpc.unary_unary_rpc_method_handler(
-                    servicer.UpgradeFactory,
-                    request_deserializer=factory__pb2.UpgradeFactoryRequest.FromString,
-                    response_serializer=factory__pb2.UpgradeFactoryResponse.SerializeToString,
-            ),
-            'GetUserResourceData': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetUserResourceData,
-                    request_deserializer=factory__pb2.GetUserResourceDataRequest.FromString,
-                    response_serializer=factory__pb2.GetUserResourceDataResponse.SerializeToString,
-            ),
+        "GetFactoryData": grpc.unary_unary_rpc_method_handler(
+            servicer.GetFactoryData,
+            request_deserializer=factory__pb2.GetFactoryDataRequest.FromString,
+            response_serializer=factory__pb2.GetFactoryDataResponse.SerializeToString,
+        ),
+        "CreateUser": grpc.unary_unary_rpc_method_handler(
+            servicer.CreateUser,
+            request_deserializer=factory__pb2.CreateUserRequest.FromString,
+            response_serializer=factory__pb2.CreateUserResponse.SerializeToString,
+        ),
+        "UpgradeFactory": grpc.unary_unary_rpc_method_handler(
+            servicer.UpgradeFactory,
+            request_deserializer=factory__pb2.UpgradeFactoryRequest.FromString,
+            response_serializer=factory__pb2.UpgradeFactoryResponse.SerializeToString,
+        ),
+        "GetUserResourceData": grpc.unary_unary_rpc_method_handler(
+            servicer.GetUserResourceData,
+            request_deserializer=factory__pb2.GetUserResourceDataRequest.FromString,
+            response_serializer=factory__pb2.GetUserResourceDataResponse.SerializeToString,
+        ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'Factory', rpc_method_handlers)
+        "Factory", rpc_method_handlers
+    )
     server.add_generic_rpc_handlers((generic_handler,))
 
 
- # This class is part of an EXPERIMENTAL API.
+# This class is part of an EXPERIMENTAL API.
 class Factory(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetFactoryData(request,
+    def GetFactoryData(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
             target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Factory/GetFactoryData',
+            "/Factory/GetFactoryData",
             factory__pb2.GetFactoryDataRequest.SerializeToString,
             factory__pb2.GetFactoryDataResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )
 
     @staticmethod
-    def CreateUser(request,
+    def CreateUser(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
             target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Factory/CreateUser',
+            "/Factory/CreateUser",
             factory__pb2.CreateUserRequest.SerializeToString,
             factory__pb2.CreateUserResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )
 
     @staticmethod
-    def UpgradeFactory(request,
+    def UpgradeFactory(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
             target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Factory/UpgradeFactory',
+            "/Factory/UpgradeFactory",
             factory__pb2.UpgradeFactoryRequest.SerializeToString,
             factory__pb2.UpgradeFactoryResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )
 
     @staticmethod
-    def GetUserResourceData(request,
+    def GetUserResourceData(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
             target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Factory/GetUserResourceData',
+            "/Factory/GetUserResourceData",
             factory__pb2.GetUserResourceDataRequest.SerializeToString,
             factory__pb2.GetUserResourceDataResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )

@@ -13,7 +13,11 @@
 	let loginPassword: string;
 
 	let graphqlClient: GraphQLClient;
-	let factoryData: [];
+	let factoryData: {
+		iron: { factoryLevel: number; productionPerSecond: number; nextUpgradeDuration: number }[];
+		copper: { factoryLevel: number; productionPerSecond: number; nextUpgradeDuration: number }[];
+		gold: { factoryLevel: number; productionPerSecond: number; nextUpgradeDuration: number }[];
+	};
 
 	async function signup(username: string, password: string) {
 		const response = await fetch('http://localhost:8000/signup', {
@@ -85,16 +89,25 @@
 		const query = gql`
 			query {
 				factoryData {
-					resourceName
-					factoryLevel
-					productionPerSecond
-					nextUpgradeDuration
+					iron {
+						factoryLevel
+						productionPerSecond
+						nextUpgradeDuration
+					}
+					copper {
+						factoryLevel
+						productionPerSecond
+						nextUpgradeDuration
+					}
+					gold {
+						factoryLevel
+						productionPerSecond
+						nextUpgradeDuration
+					}
 				}
 			}
 		`;
-		const data = await graphqlClient.request(query);
-		factoryData = data.factoryData;
-		console.log(factoryData);
+		factoryData = (await graphqlClient.request(query)).factoryData;
 	}
 </script>
 
@@ -115,16 +128,59 @@
 {/if}
 
 {#if gameJoined}
-	<table class="factoryData">
-		{#each factoryData as { resourceName, factoryLevel, productionPerSecond, nextUpgradeDuration }}
+	<div class="factoryData">
+		<table class="ironFactoryData">
 			<tr>
-				<th>{resourceName}</th>
-				<th>{factoryLevel}</th>
-				<th>{productionPerSecond}</th>
-				<th>{nextUpgradeDuration}</th>
+				<th colspan="3">Iron</th>
 			</tr>
-		{/each}
-	</table>
+			<tr>
+				<th>Level</th>
+				<th>Production Rate</th>
+				<th>Next Upgrade Duration</th>
+			</tr>
+			{#each factoryData.iron as { factoryLevel, productionPerSecond, nextUpgradeDuration }}
+				<tr>
+					<th>{factoryLevel}</th>
+					<th>{productionPerSecond}/s</th>
+					<th>{nextUpgradeDuration} seconds</th>
+				</tr>
+			{/each}
+		</table>
+		<table class="copperFactoryData">
+			<tr>
+				<th colspan="3">Copper</th>
+			</tr>
+			<tr>
+				<th>Level</th>
+				<th>Production Rate</th>
+				<th>Next Upgrade Duration</th>
+			</tr>
+			{#each factoryData.copper as { factoryLevel, productionPerSecond, nextUpgradeDuration }}
+				<tr>
+					<th>{factoryLevel}</th>
+					<th>{productionPerSecond}/s</th>
+					<th>{nextUpgradeDuration} seconds</th>
+				</tr>
+			{/each}
+		</table>
+		<table class="goldFactoryData">
+			<tr>
+				<th colspan="3">Gold</th>
+			</tr>
+			<tr>
+				<th>Level</th>
+				<th>Production Rate</th>
+				<th>Next Upgrade Duration</th>
+			</tr>
+			{#each factoryData.gold as { factoryLevel, productionPerSecond, nextUpgradeDuration }}
+				<tr>
+					<th>{factoryLevel}</th>
+					<th>{productionPerSecond}/s</th>
+					<th>{nextUpgradeDuration} seconds</th>
+				</tr>
+			{/each}
+		</table>
+	</div>
 	<p class="jwt">{jwt}</p>
 {/if}
 
@@ -163,14 +219,31 @@
 	}
 
 	.factoryData {
-		display: grid;
-		position: absolute;
+		width: 100%;
+		display: flex;
+		justify-content: center;
 		bottom: 2%;
-		right: 1%;
+		position: absolute;
+	}
+	table {
+		display: inline-table;
+		margin-left: 5vw;
+		margin-right: 5vw;
 	}
 	th,
 	tr {
 		border: 1px solid black;
+	}
+
+	.ironFactoryData {
+		background-color: #a19d94;
+	}
+	.copperFactoryData {
+		background-color: #b87333;
+	}
+
+	.goldFactoryData {
+		background-color: #ffd700;
 	}
 
 	.jwt {

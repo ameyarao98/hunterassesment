@@ -1,6 +1,4 @@
-# import asyncio
 import os
-# import typing
 
 import grpc
 import jwt
@@ -33,11 +31,17 @@ graphql_blueprint = Blueprint("graphql")
 
 
 @strawberry.type
-class FactoryData:
-    resource_name: str
+class ResourceData:
     factory_level: int
     production_per_second: int
     next_upgrade_duration: int | None
+
+
+@strawberry.type
+class FactoryData:
+    iron: list[ResourceData]
+    copper: list[ResourceData]
+    gold: list[ResourceData]
 
 
 @strawberry.type
@@ -52,14 +56,23 @@ class UserResourceData:
 @strawberry.type
 class Query:
     @strawberry.field
-    async def factory_data(self, info) -> list[FactoryData]:
-        return (
+    async def factory_data(self, info) -> FactoryData:
+        factory_data = FactoryData(iron=[], copper=[], gold=[])
+        for x in (
             app.ctx.grpc_client.GetFactoryData.future(
                 factory_pb2.GetFactoryDataRequest()
             )
             .result()
             .factory_datas
-        )
+        ):
+            getattr(factory_data, x.resource_name).append(
+                ResourceData(
+                    factory_level=x.factory_level,
+                    production_per_second=x.production_per_second,
+                    next_upgrade_duration=x.next_upgrade_duration,
+                )
+            )
+        return factory_data
 
     @strawberry.field
     async def user_resource_data(self, info) -> list[UserResourceData]:
@@ -97,26 +110,6 @@ class Mutation:
         )
 
 
-# @strawberry.type
-# class Subscription:
-#     @strawberry.subscription
-#     async def user_resources(
-#         self, info
-#     ) -> typing.AsyncGenerator[list[UserResourceData], None]:
-#         x = 0
-#         while True:
-#             yield [
-#                 UserResourceData(
-#                     resource_name="asd",
-#                     factory_level=info.context.user_id,
-#                     amount=x,
-#                     time_until_upgrade_complete=None,
-#                 )
-#             ]
-#             x += 1
-#             await asyncio.sleep(1)
-
-
 class ControllerGraphQLView(GraphQLView):
     async def get_context(self, request: request.Request) -> dict:
         return request.ctx
@@ -127,7 +120,6 @@ graphql_blueprint.add_route(
         schema=strawberry.Schema(
             query=Query,
             mutation=Mutation,
-            # subscription=Subscription,
         )
     ),
     "/graphql",
