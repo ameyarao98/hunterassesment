@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
+	import { GraphQLClient, gql } from 'graphql-request';
 
 	let gameJoined: boolean;
 
@@ -10,6 +11,9 @@
 
 	let loginUsername: string;
 	let loginPassword: string;
+
+	let graphqlClient: GraphQLClient;
+	let factoryData;
 
 	async function signup(username: string, password: string) {
 		const response = await fetch('http://localhost:8000/signup', {
@@ -57,7 +61,6 @@
 				}
 			});
 		} else {
-			jwt = await response.text();
 			toast.push(`Signed in as ${loginUsername}!`, {
 				theme: {
 					'--toastBackground': '#077023',
@@ -65,10 +68,32 @@
 					'--toastBarBackground': 'white'
 				}
 			});
-			loginUsername = '';
-			loginPassword = '';
+			jwt = await response.text();
 			gameJoined = true;
+			await setupGame();
 		}
+	}
+
+	async function setupGame() {
+		graphqlClient = new GraphQLClient('http://localhost:3000/graphql', {
+			headers: { creds: jwt }
+		});
+		await getFactoryData();
+	}
+
+	async function getFactoryData() {
+		const query = gql`
+			query {
+				factoryData {
+					resourceName
+					factoryLevel
+					productionPerSecond
+					nextUpgradeDuration
+				}
+			}
+		`;
+		const data = await graphqlClient.request(query);
+		factoryData = data.factoryData
 	}
 </script>
 
