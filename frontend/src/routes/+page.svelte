@@ -35,6 +35,7 @@
 					'--toastBarBackground': 'white'
 				}
 			});
+			await login(signupUsername, signupPassword);
 			signupUsername = '';
 			signupPassword = '';
 		}
@@ -75,16 +76,16 @@
 
 {#if !gameJoined}
 	<div class="login">
-		<input class="field" maxlength="20" bind:value={loginUsername} />
-		<input class="field" maxlength="20" bind:value={loginPassword} />
+		<input class="field" bind:value={loginUsername} />
+		<input class="field" type="password" bind:value={loginPassword} />
 		<button on:click={() => login(loginUsername, loginPassword)}> Login </button>
 	</div>
 {/if}
 
 {#if !gameJoined}
 	<div class="signup">
-		<input class="field" maxlength="20" bind:value={signupUsername} />
-		<input class="field" maxlength="20" bind:value={signupPassword} />
+		<input class="field" bind:value={signupUsername} />
+		<input class="field" type="password" bind:value={signupPassword} />
 		<button on:click={() => signup(signupUsername, signupPassword)}> Signup </button>
 	</div>
 {/if}
