@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -56,6 +57,7 @@ func main() {
 	if err := initiliaseSchema(); err != nil {
 		panic(err)
 	}
+	log.Println("Schema initialised")
 
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
@@ -66,7 +68,7 @@ func main() {
 	})
 	s := grpc.NewServer()
 	pb.RegisterFactoryServer(s, &server{})
-	fmt.Println("Server running")
+	log.Println("Server running")
 	if err := s.Serve(listener); err != nil {
 		panic(err)
 	}
