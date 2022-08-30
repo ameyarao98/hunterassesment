@@ -22,10 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FactoryClient interface {
-	GetFactoryData(ctx context.Context, in *GetFactoryDataRequest, opts ...grpc.CallOption) (*GetFactoryDataResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
-	UpgradeFactory(ctx context.Context, in *UpgradeFactoryRequest, opts ...grpc.CallOption) (*UpgradeFactoryResponse, error)
-	GetUserResourceData(ctx context.Context, in *GetUserResourceDataRequest, opts ...grpc.CallOption) (*GetUserResourceDataResponse, error)
+	GetResourceData(ctx context.Context, in *GetResourceDataRequest, opts ...grpc.CallOption) (*GetResourceDataResponse, error)
 }
 
 type factoryClient struct {
@@ -34,15 +32,6 @@ type factoryClient struct {
 
 func NewFactoryClient(cc grpc.ClientConnInterface) FactoryClient {
 	return &factoryClient{cc}
-}
-
-func (c *factoryClient) GetFactoryData(ctx context.Context, in *GetFactoryDataRequest, opts ...grpc.CallOption) (*GetFactoryDataResponse, error) {
-	out := new(GetFactoryDataResponse)
-	err := c.cc.Invoke(ctx, "/Factory/GetFactoryData", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *factoryClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error) {
@@ -54,18 +43,9 @@ func (c *factoryClient) CreateUser(ctx context.Context, in *CreateUserRequest, o
 	return out, nil
 }
 
-func (c *factoryClient) UpgradeFactory(ctx context.Context, in *UpgradeFactoryRequest, opts ...grpc.CallOption) (*UpgradeFactoryResponse, error) {
-	out := new(UpgradeFactoryResponse)
-	err := c.cc.Invoke(ctx, "/Factory/UpgradeFactory", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *factoryClient) GetUserResourceData(ctx context.Context, in *GetUserResourceDataRequest, opts ...grpc.CallOption) (*GetUserResourceDataResponse, error) {
-	out := new(GetUserResourceDataResponse)
-	err := c.cc.Invoke(ctx, "/Factory/GetUserResourceData", in, out, opts...)
+func (c *factoryClient) GetResourceData(ctx context.Context, in *GetResourceDataRequest, opts ...grpc.CallOption) (*GetResourceDataResponse, error) {
+	out := new(GetResourceDataResponse)
+	err := c.cc.Invoke(ctx, "/Factory/GetResourceData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +56,8 @@ func (c *factoryClient) GetUserResourceData(ctx context.Context, in *GetUserReso
 // All implementations must embed UnimplementedFactoryServer
 // for forward compatibility
 type FactoryServer interface {
-	GetFactoryData(context.Context, *GetFactoryDataRequest) (*GetFactoryDataResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
-	UpgradeFactory(context.Context, *UpgradeFactoryRequest) (*UpgradeFactoryResponse, error)
-	GetUserResourceData(context.Context, *GetUserResourceDataRequest) (*GetUserResourceDataResponse, error)
+	GetResourceData(context.Context, *GetResourceDataRequest) (*GetResourceDataResponse, error)
 	mustEmbedUnimplementedFactoryServer()
 }
 
@@ -87,17 +65,11 @@ type FactoryServer interface {
 type UnimplementedFactoryServer struct {
 }
 
-func (UnimplementedFactoryServer) GetFactoryData(context.Context, *GetFactoryDataRequest) (*GetFactoryDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFactoryData not implemented")
-}
 func (UnimplementedFactoryServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedFactoryServer) UpgradeFactory(context.Context, *UpgradeFactoryRequest) (*UpgradeFactoryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpgradeFactory not implemented")
-}
-func (UnimplementedFactoryServer) GetUserResourceData(context.Context, *GetUserResourceDataRequest) (*GetUserResourceDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserResourceData not implemented")
+func (UnimplementedFactoryServer) GetResourceData(context.Context, *GetResourceDataRequest) (*GetResourceDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetResourceData not implemented")
 }
 func (UnimplementedFactoryServer) mustEmbedUnimplementedFactoryServer() {}
 
@@ -110,24 +82,6 @@ type UnsafeFactoryServer interface {
 
 func RegisterFactoryServer(s grpc.ServiceRegistrar, srv FactoryServer) {
 	s.RegisterService(&Factory_ServiceDesc, srv)
-}
-
-func _Factory_GetFactoryData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetFactoryDataRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FactoryServer).GetFactoryData(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Factory/GetFactoryData",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FactoryServer).GetFactoryData(ctx, req.(*GetFactoryDataRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Factory_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -148,38 +102,20 @@ func _Factory_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Factory_UpgradeFactory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpgradeFactoryRequest)
+func _Factory_GetResourceData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetResourceDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FactoryServer).UpgradeFactory(ctx, in)
+		return srv.(FactoryServer).GetResourceData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Factory/UpgradeFactory",
+		FullMethod: "/Factory/GetResourceData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FactoryServer).UpgradeFactory(ctx, req.(*UpgradeFactoryRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Factory_GetUserResourceData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserResourceDataRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FactoryServer).GetUserResourceData(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Factory/GetUserResourceData",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FactoryServer).GetUserResourceData(ctx, req.(*GetUserResourceDataRequest))
+		return srv.(FactoryServer).GetResourceData(ctx, req.(*GetResourceDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -192,20 +128,12 @@ var Factory_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FactoryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetFactoryData",
-			Handler:    _Factory_GetFactoryData_Handler,
-		},
-		{
 			MethodName: "CreateUser",
 			Handler:    _Factory_CreateUser_Handler,
 		},
 		{
-			MethodName: "UpgradeFactory",
-			Handler:    _Factory_UpgradeFactory_Handler,
-		},
-		{
-			MethodName: "GetUserResourceData",
-			Handler:    _Factory_GetUserResourceData_Handler,
+			MethodName: "GetResourceData",
+			Handler:    _Factory_GetResourceData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

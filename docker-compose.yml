@@ -49,14 +49,6 @@ services:
     volumes:
       - factory_db:/var/lib/postgresql/data
 
-  controller:
-    build: ./controller
-    restart: on-failure
-    environment:
-      <<: *common-variables
-    ports:
-      - '3000:3000'
-
 volumes:
   auth_db:
     driver: local

@@ -1,0 +1,22 @@
+[
+    {
+        "resource_name": "iron",
+        "probability": 0.8,
+        "color": "a19d94"
+    },
+    {
+        "resource_name": "copper",
+        "probability": 0.3,
+        "color": "a19d94"
+    },
+    {
+        "resource_name": "gold",
+        "probability": 0.07,
+        "color": "a19d94"
+    },
+    {
+        "resource_name": "ruby",
+        "probability": 0.04,
+        "color": "9b111e"
+    }
+]
