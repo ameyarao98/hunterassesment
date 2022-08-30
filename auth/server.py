@@ -112,10 +112,7 @@ async def auth(request: sanic.request.Request):
         raise sanic.exceptions.Unauthorized("user not found")
     return sanic.response.text(
         jwt.encode(
-            {
-                "id": user.row[0],
-                "username": user.row[1],
-            },
+            {"id": user.row[0], "username": user.row[1]},
             PRIVATE_KEY,
             algorithm="RS256",
         )
