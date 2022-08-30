@@ -11,6 +11,7 @@ services:
     environment:
       <<: *common-variables
       POSTGRES_DSN: postgres://user:pa$$word@auth_db
+      PYTHONHASHSEED: 0
     ports:
       - '8000:8000'
     depends_on:

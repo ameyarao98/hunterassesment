@@ -13,6 +13,13 @@
 	let loginPassword: string;
 
 	let graphqlClient: GraphQLClient;
+	let userResourceData: {
+		resourceName: string;
+		factoryLevel: number;
+		amount: number;
+		productionRate: number;
+		timeUntilUpgradeComplete: number;
+	}[];
 	let factoryData: {
 		iron: { factoryLevel: number; productionPerSecond: number; nextUpgradeDuration: number }[];
 		copper: { factoryLevel: number; productionPerSecond: number; nextUpgradeDuration: number }[];
@@ -65,7 +72,7 @@
 				}
 			});
 		} else {
-			toast.push(`Signed in as ${loginUsername}!`, {
+			toast.push(`Signed in as ${username}!`, {
 				theme: {
 					'--toastBackground': '#077023',
 					'--toastColor': 'white',
@@ -81,8 +88,50 @@
 		graphqlClient = new GraphQLClient('http://localhost:3000/graphql', {
 			headers: { creds: jwt }
 		});
+		await enterGame();
 		await getFactoryData();
 		gameJoined = true;
+	}
+
+	async function enterGame() {
+		const query = gql`
+			mutation {
+				enterGame
+			}
+		`;
+		try {
+			await graphqlClient.request(query);
+			toast.push("New factories created!", {
+				theme: {
+					'--toastBackground': '#077023',
+					'--toastColor': 'white',
+					'--toastBarBackground': 'white'
+				}
+			});
+		} catch (error) {
+			toast.push("Factories restored!", {
+				theme: {
+					'--toastBackground': '#077023',
+					'--toastColor': 'white',
+					'--toastBarBackground': 'white'
+				}
+			});
+		}
+	}
+
+	async function getUserResourceData() {
+		const query = gql`
+			query {
+				userResourceData {
+					resourceName
+					factoryLevel
+					amount
+					productionRate
+					timeUntilUpgradeComplete
+				}
+			}
+		`;
+		userResourceData = (await graphqlClient.request(query)).userResourceData;
 	}
 
 	async function getFactoryData() {
