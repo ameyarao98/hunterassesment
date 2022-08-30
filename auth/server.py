@@ -1,11 +1,12 @@
 import os
 
 import jwt
+import sanic
+from asyncpg.exceptions import UniqueViolationError
 from databases import Database
-from sanic import Sanic, exceptions, request, response
 from sanic_cors import CORS
 
-app = Sanic("auth")
+app = sanic.Sanic("auth")
 CORS(app)
 
 PRIVATE_KEY = """
@@ -79,24 +80,27 @@ async def setup_db(app):
 
 
 @app.get("/healthcheck")
-async def healthcheck(_: request.Request):
-    return response.text("auth")
+async def healthcheck(_: sanic.request.Request):
+    return sanic.response.text("auth")
 
 
 @app.post("/signup")
-async def singup(request: request.Request):
-    await app.ctx.db.execute(
-        query="""INSERT INTO "user"(username, password) VALUES (:username, :password)""",
-        values={
-            "username": request.json["username"],
-            "password": str(hash(request.json["password"])),
-        },
-    )
-    return response.empty()
+async def singup(request: sanic.request.Request):
+    try:
+        await app.ctx.db.execute(
+            query="""INSERT INTO "user"(username, password) VALUES (:username, :password)""",
+            values={
+                "username": request.json["username"],
+                "password": str(hash(request.json["password"])),
+            },
+        )
+    except UniqueViolationError:
+        raise sanic.exceptions.BadRequest("username already exists")
+    return sanic.response.empty()
 
 
 @app.post("/auth")
-async def auth(request: request.Request):
+async def auth(request: sanic.request.Request):
     user = await app.ctx.db.fetch_one(
         query="""SELECT (id, username) FROM "user" WHERE username=:username and password=:password""",
         values={
@@ -105,8 +109,8 @@ async def auth(request: request.Request):
         },
     )
     if user is None:
-        raise exceptions.Unauthorized("user not found")
-    return response.text(
+        raise sanic.exceptions.Unauthorized("user not found")
+    return sanic.response.text(
         jwt.encode(
             {
                 "id": user.row[0],
