@@ -32,6 +32,7 @@ services:
     build: ./factory
     restart: on-failure
     environment:
+      <<: *common-variables
       POSTGRES_DSN: postgres://user:pa$$word@factory_db
     ports:
       - '8080:8080'

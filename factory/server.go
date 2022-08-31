@@ -15,6 +15,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
 func main() {
@@ -30,9 +33,19 @@ func main() {
 	router := chi.NewRouter()
 
 	router.Use(func() func(http.Handler) http.Handler {
+		authPublicKey, err := jwk.ParseKey([]byte(os.Getenv("AUTH_PUBLIC_KEY")))
+		if err != nil {
+			panic(err)
+		}
 		return func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				ctx := context.WithValue(r.Context(), graph.UserCtxKey, 1)
+				verifiedToken, err := jwt.Parse([]byte(r.Header.Get("Creds")), jwt.WithKey(jwa.RS256, authPublicKey))
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusUnauthorized)
+					return
+				}
+
+				ctx := context.WithValue(r.Context(), graph.UserCtxKey, verifiedToken.PrivateClaims()["id"])
 				r = r.WithContext(ctx)
 				next.ServeHTTP(w, r)
 			})
