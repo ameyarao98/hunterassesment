@@ -6,4 +6,4 @@ COPY . ./
 
 RUN go mod download
 
-ENTRYPOINT [ "go", "run", "main.go" ]
+ENTRYPOINT [ "go", "run", "server.go" ]

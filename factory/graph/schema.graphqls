@@ -1,0 +1,15 @@
+
+type Resource {
+  name: String!
+  probability: Float!
+  color: String!
+}
+
+
+type Query {
+  getResourceData: [Resource!]!
+}
+
+type Mutation {
+  createUser: Boolean!
+}
